@@ -1,0 +1,38 @@
+# manifest.yaml для Git Data Source плагина
+# Верифицировано по: dify-plugin-sdks/python/examples/notion_datasource/manifest.yaml
+
+version: 0.1.0
+type: plugin
+author: your-name
+name: git_datasource
+label:
+  en_US: Git Repository
+  ru_RU: Git Репозиторий
+  zh_Hans: Git 仓库
+description:
+  en_US: Import documents from any Git repository for RAG indexing
+  ru_RU: Импорт документов из Git репозитория для индексации в RAG
+  zh_Hans: 从 Git 仓库导入文档用于 RAG 索引
+icon: icon.svg
+
+resource:
+  memory: 536870912  # 512 MB — для клонирования репозиториев
+  permission: {}
+
+plugins:
+  datasources:
+    - provider/git_datasource.yaml
+
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: 1.9.0
+
+tags:
+  - rag

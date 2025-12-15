@@ -1,0 +1,29 @@
+# datasources/git_datasource.yaml
+# Верифицировано по: dify-plugin-sdks/python/examples/google_cloud_storage/datasources/google_cloud_storage.yaml
+
+identity:
+  name: git_datasource
+  author: your-name
+  label:
+    en_US: Git Repository
+    ru_RU: Git Репозиторий
+    zh_Hans: Git 仓库
+
+description:
+  en_US: Browse and import files from Git repository
+  ru_RU: Просмотр и импорт файлов из Git репозитория
+  zh_Hans: 浏览并导入 Git 仓库中的文件
+
+# Параметры datasource (опционально, в дополнение к credentials провайдера)
+parameters: []
+
+# Схема вывода — файл
+output_schema:
+  type: object
+  properties:
+    file:
+      $ref: "https://dify.ai/schemas/v1/file.json"
+
+extra:
+  python:
+    source: datasources/git_datasource.py

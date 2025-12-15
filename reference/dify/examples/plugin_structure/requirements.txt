@@ -1,0 +1,11 @@
+# requirements.txt для Git Data Source плагина
+
+# Dify Plugin SDK
+dify-plugin>=0.1.0
+
+# Git библиотека (выбрать одну)
+GitPython>=3.1.0
+# dulwich>=0.21.0  # Альтернатива: pure Python
+
+# HTTP клиент (для API вызовов если нужно)
+requests>=2.28.0

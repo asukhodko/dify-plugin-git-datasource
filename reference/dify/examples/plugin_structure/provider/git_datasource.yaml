@@ -1,0 +1,93 @@
+# provider/git_datasource.yaml
+# Верифицировано по: dify-plugin-sdks/python/examples/google_cloud_storage/provider/google_cloud_storage.yaml
+
+identity:
+  author: your-name
+  name: git_datasource
+  label:
+    en_US: Git Repository
+    ru_RU: Git Репозиторий
+    zh_Hans: Git 仓库
+  description:
+    en_US: Import documents from Git repository
+    ru_RU: Импорт документов из Git репозитория
+    zh_Hans: 从 Git 仓库导入文档
+  icon: icon.svg
+
+# Тип провайдера — online_drive для файловой навигации
+provider_type: online_drive
+
+# Схема credentials
+credentials_schema:
+  - name: repo_url
+    type: text-input
+    required: true
+    label:
+      en_US: Repository URL
+      ru_RU: URL репозитория
+      zh_Hans: 仓库 URL
+    placeholder:
+      en_US: https://github.com/user/repo.git
+    help:
+      en_US: HTTPS URL of the Git repository
+      ru_RU: HTTPS URL Git репозитория
+
+  - name: branch
+    type: text-input
+    required: false
+    label:
+      en_US: Branch
+      ru_RU: Ветка
+      zh_Hans: 分支
+    placeholder:
+      en_US: main
+    help:
+      en_US: Branch name (default: main)
+      ru_RU: Имя ветки (по умолчанию: main)
+
+  - name: access_token
+    type: secret-input
+    required: false
+    label:
+      en_US: Access Token
+      ru_RU: Токен доступа
+      zh_Hans: 访问令牌
+    placeholder:
+      en_US: ghp_xxxx or glpat-xxxx
+    help:
+      en_US: Personal access token for private repositories (GitHub, GitLab, Gitea)
+      ru_RU: Персональный токен для приватных репозиториев
+
+  - name: subdir
+    type: text-input
+    required: false
+    label:
+      en_US: Subdirectory
+      ru_RU: Поддиректория
+      zh_Hans: 子目录
+    placeholder:
+      en_US: docs/
+    help:
+      en_US: Only import files from this subdirectory
+      ru_RU: Импортировать файлы только из этой поддиректории
+
+  - name: extensions
+    type: text-input
+    required: false
+    label:
+      en_US: File Extensions
+      ru_RU: Расширения файлов
+      zh_Hans: 文件扩展名
+    placeholder:
+      en_US: .md,.txt,.rst
+    help:
+      en_US: Comma-separated list of extensions to include (empty = all)
+      ru_RU: Список расширений через запятую (пусто = все)
+
+# Список datasources
+datasources:
+  - datasources/git_datasource.yaml
+
+extra:
+  python:
+    source: provider/git_datasource.py
