@@ -2,7 +2,7 @@
 
 Data Source plugin for Dify that exposes **any Git repository** (HTTP/SSH/local path) as a document source for RAG pipelines and Knowledge.
 
-✅ **VALIDATED AS FEASIBLE** — See [Validation Summary](docs/06_validation_summary.md)
+✅ **VALIDATED AS FEASIBLE** — See [Validation Summary](docs/06_validation_summary.md) and [Detailed Validation](docs/07_idea_validation.md)
 
 ## What we want
 - Recursively index documents from a Git repository (branch/tag/commit).
@@ -33,6 +33,8 @@ See `docs/`:
 - `docs/04_mvp_plan.md` — phased delivery plan
 - `docs/05_open_questions.md` — unknowns / questions to validate
 - `docs/06_validation_summary.md` — ✅ feasibility validation
+- `docs/07_idea_validation.md` — ✅ detailed validation with scenarios analysis
+- `docs/08_implementation_recommendations.md` — ✅ implementation guide and recommendations
 
 Reference implementations: `reference/`
 - Dify plugin structure examples
