@@ -2,7 +2,7 @@
 datasources/git_datasource.py
 
 Реализация Git Data Source (online_drive тип) с инкрементальным sync.
-Верифицировано по: dify-plugin-sdks (December 2024)
+Верифицировано по: dify-plugin-sdks (December 2025)
 """
 
 import hashlib
@@ -61,6 +61,7 @@ class GitDataSource(OnlineDriveDatasource):
         repo_url = self.runtime.credentials.get("repo_url")
         branch = self.runtime.credentials.get("branch", "main")
         access_token = self.runtime.credentials.get("access_token")
+        ssh_private_key = self.runtime.credentials.get("ssh_private_key")
         subdir = self.runtime.credentials.get("subdir", "")
         extensions = self._parse_extensions(self.runtime.credentials.get("extensions", ""))
         

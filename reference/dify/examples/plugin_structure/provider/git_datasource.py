@@ -39,9 +39,11 @@ class GitDatasourceProvider(DatasourceProvider):
             raise ToolProviderCredentialValidationError("Repository URL is required")
         
         # Валидация формата URL
-        if not (repo_url.startswith("https://") or repo_url.startswith("http://")):
+        if not (repo_url.startswith("https://") or repo_url.startswith("http://") or 
+                repo_url.startswith("git@") or repo_url.startswith("ssh://") or
+                repo_url.startswith("/") or repo_url.startswith("file://")):
             raise ToolProviderCredentialValidationError(
-                "Repository URL must start with https:// or http://"
+                "Repository URL must start with https://, http://, git@, ssh://, /, or file://"
             )
         
         # Проверяем доступ к репозиторию
@@ -62,6 +64,19 @@ class GitDatasourceProvider(DatasourceProvider):
         Выполняет ls-remote для проверки доступа.
         """
         import subprocess
+        import os
+        
+        # Определяем тип репозитория
+        if repo_url.startswith("/") or repo_url.startswith("file://"):
+            # Локальный репозиторий
+            path = repo_url.replace("file://", "")
+            if not os.path.exists(path):
+                raise Exception(f"Local repository not found: {path}")
+            # Простая проверка что это Git репозиторий
+            if not (os.path.exists(os.path.join(path, ".git")) or 
+                   os.path.exists(os.path.join(path, "HEAD"))):
+                raise Exception(f"Not a Git repository: {path}")
+            return  # Локальный репозиторий проверен
         
         # Формируем URL с токеном если есть
         if access_token and repo_url.startswith("https://"):

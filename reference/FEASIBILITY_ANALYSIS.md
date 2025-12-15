@@ -1,6 +1,6 @@
 # Анализ реалистичности: Git Data Source Plugin для Dify
 
-> Верифицировано по: dify-plugin-sdks (December 2024)
+> Верифицировано по: dify-plugin-sdks (December 2025)
 
 ## Резюме
 

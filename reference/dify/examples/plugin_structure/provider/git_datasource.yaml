@@ -58,6 +58,21 @@ credentials_schema:
       en_US: Personal access token for private repositories (GitHub, GitLab, Gitea)
       ru_RU: Персональный токен для приватных репозиториев
 
+  - name: ssh_private_key
+    type: secret-input
+    required: false
+    label:
+      en_US: SSH Private Key
+      ru_RU: SSH приватный ключ
+      zh_Hans: SSH 私钥
+    help:
+      en_US: |
+        Private key for SSH authentication.
+        Paste the entire key including BEGIN/END lines.
+      ru_RU: |
+        Приватный ключ для SSH аутентификации.
+        Вставьте весь ключ включая BEGIN/END строки.
+
   - name: subdir
     type: text-input
     required: false

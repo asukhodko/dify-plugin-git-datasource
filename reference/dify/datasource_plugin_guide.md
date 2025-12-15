@@ -1,7 +1,7 @@
 # Dify Data Source Plugin Guide
 
 > Источник: dify-plugin-sdks (актуальный код SDK)
-> Верифицировано: December 2024
+> Верифицировано: December 2025
 
 ## ВАЖНО: Три типа Data Source
 

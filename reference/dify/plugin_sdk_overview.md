@@ -1,6 +1,6 @@
 # Dify Plugin SDK Overview
 
-> Верифицировано по: dify-plugin-sdks (December 2024)
+> Верифицировано по: dify-plugin-sdks (December 2025)
 
 ## Типы плагинов
 

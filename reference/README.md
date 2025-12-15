@@ -1,6 +1,6 @@
 # Reference Documentation
 
-> **Верифицировано по:** dify-plugin-sdks (December 2024)
+> **Верифицировано по:** dify-plugin-sdks (December 2025)
 
 Собранная документация и примеры кода для реализации dify-plugin-git-datasource.
 
