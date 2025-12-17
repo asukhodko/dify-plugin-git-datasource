@@ -1,51 +1,84 @@
 # dify-plugin-git-datasource
 
-Data Source plugin for Dify that exposes **any Git repository** (HTTP/SSH/local path) as a document source for RAG pipelines and Knowledge.
+Dify плагин для использования Git репозиториев как источника данных для Knowledge Base с поддержкой инкрементальной синхронизации.
 
-✅ **VALIDATED AS FEASIBLE** — See [Validation Summary](docs/06_validation_summary.md) and [Detailed Validation](docs/07_idea_validation.md)
+## ✅ Статус: MVP Реализован
 
-## What we want
-- Recursively index documents from a Git repository (branch/tag/commit).
-- Support incremental sync:
-  - remember last synced commit SHA
-  - on next sync, ingest only changed files
-  - remove documents if files were removed in Git
-- Work with:
-  - HTTP(S) remotes (GitLab/Gitea/etc.)
-  - SSH remotes
-  - local bare repo / local checkout (if accessible to plugin runtime)
+Плагин полностью реализован и готов к тестированию.
 
-## Key Features Implemented
-✅ Dify OnlineDrive Datasource contract
-✅ Incremental sync with SHA tracking
-✅ Deletion handling
-✅ HTTPS + Token auth
-✅ SSH key auth
-✅ Local repository support
-✅ File extension filtering
-✅ Subdirectory filtering
+## Возможности
 
-## Documentation
-See `docs/`:
-- `docs/01_reference_links.md` — Dify + plugin references, examples, Git libs
-- `docs/02_idea.md` — what we build and why
-- `docs/03_solution_design.md` — intended design & sync strategy
-- `docs/04_mvp_plan.md` — phased delivery plan
-- `docs/05_open_questions.md` — unknowns / questions to validate
-- `docs/06_validation_summary.md` — ✅ feasibility validation
-- `docs/07_idea_validation.md` — ✅ detailed validation with scenarios analysis
-- `docs/08_implementation_recommendations.md` — ✅ implementation guide and recommendations
+- 📁 Импорт документов из любого Git репозитория
+- 🔄 Инкрементальная синхронизация (только изменённые файлы)
+- 🔐 Поддержка HTTPS, SSH и локальных репозиториев
+- 🎯 Фильтрация по расширениям и поддиректориям
+- 🔒 Безопасная работа с credentials
 
-Reference implementations: `reference/`
-- Dify plugin structure examples
-- Git library usage patterns
-- Authentication handling
-- Incremental sync patterns
+## Быстрый старт
 
-Drafts (work in progress): `drafts/`
+```bash
+# Перейти в директорию плагина
+cd plugin
 
-## Status
-- [x] ✅ Collect references and confirm Dify Data Source plugin contract
-- [x] ✅ Define minimal contract + data model
-- [ ] Implement MVP
-- [ ] Hardening (auth, caching, deletion, rate limits)
+# Установить зависимости для разработки
+make install-dev
+
+# Запустить тесты
+make test
+
+# Собрать плагин
+dify-plugin build
+```
+
+Подробная документация: [plugin/README.md](plugin/README.md)
+
+## Структура проекта
+
+```
+dify-plugin-git-datasource/
+├── plugin/                   # 🔧 ОСНОВНОЙ КОД ПЛАГИНА
+│   ├── manifest.yaml         # Метаданные плагина
+│   ├── main.py               # Точка входа
+│   ├── git_client.py         # Git операции
+│   ├── provider/             # Валидация credentials
+│   ├── datasources/          # Основная логика browse/download
+│   ├── utils/                # Утилиты (filtering, masking, etc.)
+│   └── tests/                # Тесты (unit, property, integration)
+│
+├── .kiro/specs/              # 📋 Спецификация (requirements, design, tasks)
+├── docs/                     # 📚 Документация по идее и дизайну
+├── reference/                # 📖 Справочные материалы и примеры
+└── drafts/                   # 📝 Черновики
+```
+
+## Документация
+
+| Раздел | Описание |
+|--------|----------|
+| [plugin/README.md](plugin/README.md) | Документация плагина, установка, конфигурация |
+| [.kiro/specs/](/.kiro/specs/git-datasource-plugin/) | Спецификация: requirements, design, tasks |
+| [docs/](docs/) | Исходная документация по идее и дизайну |
+| [reference/](reference/) | Справочные материалы по Dify и Git |
+
+## Разработка
+
+### Требования
+
+- Python 3.12+
+- Git 2.x+
+
+### Команды
+
+```bash
+cd plugin
+
+make install-dev    # Установить зависимости
+make test           # Запустить все тесты
+make test-property  # Property-based тесты
+make test-unit      # Unit тесты
+make lint           # Проверка линтером
+```
+
+## Лицензия
+
+MIT

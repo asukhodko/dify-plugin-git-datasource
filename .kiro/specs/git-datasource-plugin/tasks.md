@@ -1,0 +1,237 @@
+# Implementation Plan
+
+- [x] 1. Validate Git library choice and Dify datasource semantics
+  - [x] 1.1 Verify GitPython works in plugin environment
+    - Test that `git` binary is available in Dify plugin runtime
+    - Test basic clone/fetch operations
+    - If git unavailable, switch to Dulwich (pure Python)
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 1.2 Verify Dify online_drive datasource behavior
+    - Test when Dify calls `_browse_files()` (on UI open? on sync trigger?)
+    - Test how Dify handles file ID changes (duplicates?)
+    - Test how Dify marks orphaned documents when files disappear
+    - Document findings for implementation decisions
+    - _Requirements: 4.1, 5.4_
+
+- [x] 2. Set up project structure and dependencies
+  - [x] 2.1 Create plugin directory structure (manifest.yaml, main.py, requirements.txt)
+    - Create `manifest.yaml` with plugin metadata
+    - Create `main.py` entry point
+    - Create `requirements.txt` with GitPython and hypothesis
+    - Create `_assets/icon.svg` placeholder
+    - _Requirements: 1.1_
+  - [x] 2.2 Create provider configuration files
+    - Create `provider/git_datasource.yaml` with credentials schema
+    - Create `provider/git_datasource.py` skeleton
+    - _Requirements: 1.1, 6.1, 6.2, 6.3, 6.4_
+  - [x] 2.3 Create datasource configuration files
+    - Create `datasources/git_datasource.yaml` with output schema
+    - Create `datasources/git_datasource.py` skeleton
+    - _Requirements: 2.1_
+
+- [x] 3. Implement utility functions and data models
+  - [x] 3.1 Create data models (FileInfo, ChangeSet)
+    - Implement `FileInfo` dataclass
+    - Implement `ChangeSet` dataclass
+    - Add JSON serialization methods
+    - _Requirements: 9.3_
+  - [x] 3.2 Write property test for FileInfo serialization round-trip
+    - **Property 15: FileInfo Serialization Round-Trip**
+    - **Validates: Requirements 9.3**
+  - [x] 3.3 Implement URL validation and type detection
+    - Implement `validate_repo_url()` function
+    - Implement `get_url_type()` function (https, ssh, local)
+    - _Requirements: 1.2, 6.4_
+  - [x] 3.4 Write property test for URL validation
+    - **Property 1: Invalid URL Rejection**
+    - **Validates: Requirements 1.2**
+  - [x] 3.5 Write property test for local path detection
+    - **Property 11: Local Path Detection**
+    - **Validates: Requirements 6.4**
+  - [x] 3.6 Implement credential masking utility
+    - Implement `mask_credentials()` function
+    - Implement `mask_url()` function (NEVER log URLs with embedded tokens)
+    - _Requirements: 1.3, 7.4_
+  - [x] 3.7 Write property test for credential masking
+    - **Property 2: Credential Masking**
+    - **Validates: Requirements 1.3, 7.4**
+  - [x] 3.8 Implement file filtering utilities
+    - Implement `filter_by_subdir()` function
+    - Implement `filter_by_extensions()` function
+    - Implement `parse_extensions()` function
+    - _Requirements: 2.2, 2.3_
+  - [x] 3.9 Write property tests for filtering
+    - **Property 3: Subdirectory Filtering**
+    - **Property 4: Extension Filtering**
+    - **Validates: Requirements 2.2, 2.3**
+  - [x] 3.10 Implement MIME type detection
+    - Implement `get_mime_type()` function using mimetypes module
+    - _Requirements: 3.1_
+  - [x] 3.11 Write property test for MIME type detection
+    - **Property 6: MIME Type Detection**
+    - **Validates: Requirements 3.1**
+  - [x] 3.12 Implement storage key generation
+    - Implement `generate_storage_key()` function
+    - Include repo_url, branch, subdir, extensions in hash
+    - _Requirements: 11.1, 11.2_
+  - [x] 3.13 Write property test for storage key uniqueness
+    - **Property 17: Storage Key Uniqueness**
+    - **Validates: Requirements 11.1, 11.2**
+
+- [x] 4. Checkpoint - Ensure all utility tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Implement GitClient
+  - [x] 5.1 Implement GitClient initialization and cache management
+    - Implement `__init__()` with repo_url, branch, credentials, cache_dir
+    - Implement `_get_cache_path()` for deterministic cache location
+    - Implement `_prepare_auth_url()` for HTTPS token embedding (never log this URL!)
+    - _Requirements: 8.1, 8.2_
+  - [x] 5.2 Implement clone and fetch operations
+    - Implement `ensure_cloned()` method
+    - Implement `_clone_repo()` for initial clone
+    - Implement `_fetch_repo()` for updates
+    - Handle SSH key authentication with temp file
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 8.1, 8.2, 8.3_
+  - [x] 5.3 Write unit test for cache reuse (not property-based due to git dependency)
+    - Test that second access uses fetch instead of clone
+    - **Validates: Requirements 8.2**
+  - [x] 5.4 Implement SHA operations
+    - Implement `get_head_sha()` method
+    - Implement `is_sha_reachable()` method
+    - _Requirements: 4.2, 7.1_
+  - [x] 5.5 Implement file listing
+    - Implement `list_all_files()` method with recursive tree traversal
+    - Use file path as stable ID (no SHA in ID!)
+    - Apply subdir and extension filters
+    - _Requirements: 2.1, 2.2, 2.3, 4.3, 10.1, 10.2, 10.3_
+  - [x] 5.6 Write property test for stable file ID
+    - **Property 16: Stable File ID**
+    - **Validates: Requirements 10.1, 10.2, 10.3**
+  - [x] 5.7 Implement change detection
+    - Implement `get_changed_files()` method using git diff
+    - Return ChangeSet with added, modified, deleted, renamed
+    - Handle shallow clone limitation (fallback to full sync if history unavailable)
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 8.3_
+  - [x] 5.8 Write unit test for changeset handling (not property-based due to git dependency)
+    - Test with fixture repository: added, modified, deleted, renamed files
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5**
+  - [x] 5.9 Implement file content reading
+    - Implement `read_file()` method
+    - Handle file not found errors
+    - _Requirements: 3.1, 3.2_
+  - [x] 5.10 Write unit tests for GitClient
+    - Test clone/fetch operations
+    - Test SHA operations
+    - Test file listing
+    - Test change detection
+    - _Requirements: 4.1, 4.2, 4.3, 5.1, 6.1, 6.2, 6.3, 6.4_
+
+- [x] 6. Checkpoint - Ensure GitClient tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Implement GitDatasourceProvider
+  - [x] 7.1 Implement credential validation
+    - Implement `_validate_credentials()` method
+    - Validate repo_url presence and format
+    - Validate auth type matches URL type
+    - _Requirements: 1.1, 1.2_
+  - [x] 7.2 Implement connection testing
+    - Implement `_test_connection()` method using git ls-remote
+    - Handle timeout errors
+    - Mask credentials in error messages
+    - _Requirements: 1.1, 1.3, 7.3, 7.4_
+  - [x] 7.3 Write unit tests for provider
+    - Test valid credentials acceptance
+    - Test invalid URL rejection
+    - Test credential masking in errors
+    - _Requirements: 1.1, 1.2, 1.3_
+
+- [x] 8. Implement GitDataSource
+  - [x] 8.1 Implement storage key generation (use utility from 3.12)
+    - Implement `_get_storage_key()` method using `generate_storage_key()`
+    - Include all config params: repo_url, branch, subdir, extensions
+    - _Requirements: 9.1, 11.1, 11.2_
+  - [x] 8.2 Implement SHA storage operations
+    - Implement `_get_last_browsed_sha()` method
+    - Implement `_save_last_browsed_sha()` method
+    - Only save SHA if files were returned (prevent data loss)
+    - _Requirements: 4.2, 4.4, 5.6, 9.1, 9.2_
+  - [x] 8.3 Write property test for SHA serialization round-trip
+    - **Property 14: SHA Serialization Round-Trip**
+    - **Validates: Requirements 9.1, 9.2**
+  - [x] 8.4 Implement sync mode selection
+    - Implement `_should_full_sync()` method
+    - Check if last_browsed_sha exists
+    - Check if SHA is reachable
+    - Check commit count threshold
+    - Handle shallow clone limitation
+    - _Requirements: 4.1, 7.1, 7.2, 8.3_
+  - [x] 8.5 Write property tests for sync mode selection
+    - **Property 7: Full Sync Mode Selection**
+    - **Property 12: Sync Fallback Conditions**
+    - **Validates: Requirements 4.1, 7.1, 7.2**
+  - [x] 8.6 Implement _browse_files method
+    - Get credentials from runtime
+    - Initialize GitClient
+    - Determine sync mode
+    - Get file list (full or incremental)
+    - Apply filters
+    - Handle pagination
+    - Save new SHA only if files returned
+    - Return OnlineDriveBrowseFilesResponse
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 4.1, 4.2, 4.4, 5.1, 5.6_
+  - [x] 8.7 Write property test for pagination
+    - **Property 5: Pagination Correctness**
+    - **Validates: Requirements 2.4**
+  - [x] 8.8 Write property test for SHA storage after browse
+    - **Property 8: SHA Storage After Browse**
+    - **Validates: Requirements 4.2, 4.4, 5.6**
+  - [x] 8.9 Implement _download_file method
+    - Get file path from request.id
+    - Read file content via GitClient
+    - Determine MIME type
+    - Return blob message
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 8.10 Write unit tests for datasource
+    - Test browse with full sync
+    - Test browse with incremental sync
+    - Test download file
+    - Test error handling
+    - _Requirements: 2.1, 3.1, 4.1, 5.1_
+
+- [x] 9. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 10. Implement URL construction with token
+  - [x] 10.1 Implement authenticated URL builder
+    - Implement `build_auth_url()` function
+    - Handle HTTPS URLs with token embedding
+    - Validate resulting URL format
+    - Ensure authenticated URL is NEVER logged
+    - _Requirements: 6.2, 7.4_
+  - [x] 10.2 Write property test for token URL construction
+    - **Property 10: Token URL Construction**
+    - **Validates: Requirements 6.2, 7.4**
+
+- [x] 11. Final integration and cleanup
+  - [x] 11.1 Create integration test with mock repository
+    - Test full flow: configure -> browse -> download
+    - Test incremental sync scenario
+    - Test deletion handling (orphaned documents)
+    - _Requirements: 1.1, 2.1, 3.1, 4.1, 5.1, 5.4_
+  - [x] 11.2 Add error handling and logging
+    - Add structured logging throughout
+    - Ensure all errors are properly masked
+    - Never log URLs with embedded tokens
+    - _Requirements: 1.3, 7.3, 7.4_
+  - [x] 11.3 Update documentation
+    - Update README with usage instructions
+    - Add configuration examples
+    - Document deletion handling (orphaned documents)
+    - Document shallow clone limitations
+    - Document best-effort nature of incremental sync
+    - _Requirements: All_
+
+- [x] 12. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

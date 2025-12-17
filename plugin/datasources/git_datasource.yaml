@@ -1,0 +1,24 @@
+identity:
+  name: git_datasource
+  author: dify-community
+  label:
+    en_US: Git Repository
+    ru_RU: Git Репозиторий
+    zh_Hans: Git 仓库
+
+description:
+  en_US: Browse and import files from Git repository with incremental sync
+  ru_RU: Просмотр и импорт файлов из Git репозитория с инкрементальной синхронизацией
+  zh_Hans: 浏览并导入 Git 仓库中的文件，支持增量同步
+
+parameters: []
+
+output_schema:
+  type: object
+  properties:
+    file:
+      $ref: "https://dify.ai/schemas/v1/file.json"
+
+extra:
+  python:
+    source: datasources/git_datasource.py
