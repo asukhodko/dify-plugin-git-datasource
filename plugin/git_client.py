@@ -104,10 +104,27 @@ class GitClient:
         if not ssh_key:
             return None
 
+        # Normalize key format - handle various ways the key might be mangled by UI:
+        # 1. Replace literal \n strings with actual newlines
+        ssh_key = ssh_key.replace("\\n", "\n")
+        # 2. Replace Windows line endings with Unix
+        ssh_key = ssh_key.replace("\r\n", "\n").replace("\r", "\n")
+        # 3. Handle case where all newlines were replaced with spaces
+        if "-----BEGIN" in ssh_key and "\n" not in ssh_key:
+            # Key is on single line - try to reconstruct
+            ssh_key = ssh_key.replace(" -----", "\n-----")
+            ssh_key = ssh_key.replace("----- ", "-----\n")
+        # 4. Ensure trailing newline (required by SSH)
+        ssh_key = ssh_key.strip() + "\n"
+
+        # Log key format for debugging (first/last lines only, no secrets)
+        lines = ssh_key.strip().split("\n")
+        logger.info(f"SSH key has {len(lines)} lines, starts with: {lines[0][:30]}...")
+
         # Create temporary file for SSH key
         fd, key_path = tempfile.mkstemp(suffix=".key", prefix="git_")
         try:
-            os.write(fd, ssh_key.encode())
+            os.write(fd, ssh_key.encode("utf-8"))
             os.close(fd)
             os.chmod(key_path, 0o600)
 

@@ -157,11 +157,12 @@ class GitDataSource(OnlineDriveDatasource):
         if not last_sha:
             return True
 
-        # Same SHA - no changes
+        # Same SHA - no changes, but still show all files for browsing
+        # (user may want to re-select files)
         if last_sha == current_sha:
-            return False
+            return True
 
-        # Check if last SHA is reachable
+        # Check if last SHA is reachable (force push detection)
         if not client.is_sha_reachable(last_sha, current_sha):
             return True
 

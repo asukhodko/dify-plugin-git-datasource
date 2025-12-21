@@ -5,3 +5,4 @@
 - Do NOT use Windows `.exe` binaries.
 - Do NOT prefix commands with `wsl bash`.
 - Use plain Linux shell commands.
+- Весь основной код, а также .venv и Makefile находится в папке ./plugin/

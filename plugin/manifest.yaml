@@ -15,7 +15,10 @@ icon: icon.svg
 
 resource:
   memory: 536870912  # 512 MB for repository cloning
-  permission: {}
+  permission:
+    storage:
+      enabled: true
+      size: 104857600  # 100 MB for SHA tracking and cache
 
 plugins:
   datasources:
@@ -30,7 +33,7 @@ meta:
     language: python
     version: "3.12"
     entrypoint: main
-  minimum_dify_version: 1.9.0
+  minimum_dify_version: 1.10.0
 
 tags:
   - utilities

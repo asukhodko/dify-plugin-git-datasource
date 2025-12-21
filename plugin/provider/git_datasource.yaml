@@ -57,12 +57,14 @@ credentials_schema:
     type: secret-input
     required: false
     label:
-      en_US: SSH Private Key
-      ru_RU: SSH приватный ключ
-      zh_Hans: SSH 私钥
+      en_US: SSH Private Key (PEM format)
+      ru_RU: SSH приватный ключ (PEM формат)
+      zh_Hans: SSH 私钥 (PEM 格式)
+    placeholder:
+      en_US: "-----BEGIN RSA PRIVATE KEY-----"
     help:
-      en_US: "Private key for SSH authentication. Paste the entire key including BEGIN/END lines."
-      ru_RU: "Приватный ключ для SSH аутентификации. Вставьте весь ключ включая BEGIN/END строки."
+      en_US: "Private key in PEM format. For OpenSSH keys, convert with: ssh-keygen -p -m PEM -f keyfile"
+      ru_RU: "Приватный ключ в PEM формате. Для OpenSSH ключей конвертируйте: ssh-keygen -p -m PEM -f keyfile"
 
   - name: subdir
     type: text-input
