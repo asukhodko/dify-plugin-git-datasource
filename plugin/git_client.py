@@ -179,11 +179,13 @@ class GitClient:
             # Prepare URL (with token for HTTPS)
             clone_url = self._prepare_auth_url()
 
-            # Clone
+            # Clone with timeout (300 seconds for initial clone)
+            logger.info("Starting git clone with 300s timeout...")
             self._repo = Repo.clone_from(
                 clone_url,
                 self._cache_path,
                 branch=self.branch,
+                kill_after_timeout=300,
             )
 
             logger.info("Repository cloned successfully")
@@ -213,8 +215,10 @@ class GitClient:
                 fetch_url = self._prepare_auth_url()
                 self._repo.remotes.origin.set_url(fetch_url)
 
-            # Fetch
-            self._repo.remotes.origin.fetch()
+            # Fetch with timeout (120 seconds)
+            # GitPython uses kill_after_timeout parameter
+            logger.info("Starting git fetch with 120s timeout...")
+            self._repo.remotes.origin.fetch(kill_after_timeout=120)
 
             logger.info("Repository fetched successfully")
 

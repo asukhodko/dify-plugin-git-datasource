@@ -7,18 +7,77 @@ identity:
     zh_Hans: Git 仓库
 
 description:
-  en_US: Browse and import files from Git repository with incremental sync
-  ru_RU: Просмотр и импорт файлов из Git репозитория с инкрементальной синхронизацией
-  zh_Hans: 浏览并导入 Git 仓库中的文件，支持增量同步
+  en_US: Import all files from Git repository automatically
+  ru_RU: Автоматический импорт всех файлов из Git репозитория
+  zh_Hans: 自动导入 Git 仓库中的所有文件
 
-parameters: []
+# Parameters for each sync (not credentials - stored as datasource config)
+parameters:
+  - name: repo_url
+    type: string
+    required: true
+    label:
+      en_US: Repository URL
+      ru_RU: URL репозитория
+      zh_Hans: 仓库 URL
+    description:
+      en_US: "Supported formats: HTTPS (https://github.com/user/repo.git), SSH (git@github.com:user/repo.git), Local (/path/to/repo)"
+      ru_RU: "Поддерживаемые форматы: HTTPS, SSH, локальный путь"
+      zh_Hans: "支持的格式: HTTPS, SSH, 本地路径"
 
+  - name: branch
+    type: string
+    required: false
+    label:
+      en_US: Branch
+      ru_RU: Ветка
+      zh_Hans: 分支
+    description:
+      en_US: "Branch name (default: main)"
+      ru_RU: "Имя ветки (по умолчанию: main)"
+      zh_Hans: "分支名称 (默认: main)"
+
+  - name: subdir
+    type: string
+    required: false
+    label:
+      en_US: Subdirectory
+      ru_RU: Поддиректория
+      zh_Hans: 子目录
+    description:
+      en_US: Only import files from this subdirectory
+      ru_RU: Импортировать файлы только из этой поддиректории
+      zh_Hans: 仅从此子目录导入文件
+
+  - name: extensions
+    type: string
+    required: false
+    label:
+      en_US: File Extensions
+      ru_RU: Расширения файлов
+      zh_Hans: 文件扩展名
+    description:
+      en_US: Comma-separated list of extensions to include (empty = all text files)
+      ru_RU: Список расширений через запятую (пусто = все текстовые файлы)
+      zh_Hans: 逗号分隔的扩展名列表 (空 = 所有文本文件)
+
+# Output schema for website_crawl
 output_schema:
   type: object
   properties:
-    file:
-      $ref: "https://dify.ai/schemas/v1/file.json"
+    title:
+      type: string
+      description: File path (relative)
+    content:
+      type: string
+      description: File content (UTF-8)
+    description:
+      type: string
+      description: Repository metadata
+    source_url:
+      type: string
+      description: Unique identifier (git:hash:path)
 
 extra:
   python:
-    source: datasources/git_datasource.py
+    source: datasources/git_website_crawl.py

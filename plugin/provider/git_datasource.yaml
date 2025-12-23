@@ -6,40 +6,15 @@ identity:
     ru_RU: Git Репозиторий
     zh_Hans: Git 仓库
   description:
-    en_US: Import documents from Git repository with incremental sync
-    ru_RU: Импорт документов из Git репозитория с инкрементальной синхронизацией
-    zh_Hans: 从 Git 仓库导入文档，支持增量同步
+    en_US: Import all files from Git repository automatically with incremental sync
+    ru_RU: Автоматический импорт всех файлов из Git репозитория с инкрементальной синхронизацией
+    zh_Hans: 自动导入 Git 仓库中的所有文件，支持增量同步
   icon: icon.svg
 
-provider_type: online_drive
+provider_type: website_crawl
 
 credentials_schema:
-  - name: repo_url
-    type: text-input
-    required: true
-    label:
-      en_US: Repository URL
-      ru_RU: URL репозитория
-      zh_Hans: 仓库 URL
-    placeholder:
-      en_US: https://github.com/user/repo.git
-    help:
-      en_US: "Supported formats: HTTPS (https://github.com/user/repo.git), SSH (git@github.com:user/repo.git), Local (/path/to/repo)"
-      ru_RU: "Поддерживаемые форматы: HTTPS, SSH, локальный путь"
-
-  - name: branch
-    type: text-input
-    required: false
-    label:
-      en_US: Branch
-      ru_RU: Ветка
-      zh_Hans: 分支
-    placeholder:
-      en_US: main
-    help:
-      en_US: "Branch name (default: main)"
-      ru_RU: "Имя ветки (по умолчанию: main)"
-
+  # Credentials for authentication (stored encrypted)
   - name: access_token
     type: secret-input
     required: false
@@ -50,8 +25,8 @@ credentials_schema:
     placeholder:
       en_US: ghp_xxxx or glpat-xxxx
     help:
-      en_US: Personal access token for private repositories (GitHub, GitLab, Gitea)
-      ru_RU: Персональный токен для приватных репозиториев
+      en_US: Personal access token for private HTTPS repositories (GitHub, GitLab, Gitea)
+      ru_RU: Персональный токен для приватных HTTPS репозиториев
 
   - name: ssh_private_key
     type: secret-input
@@ -63,34 +38,8 @@ credentials_schema:
     placeholder:
       en_US: "-----BEGIN RSA PRIVATE KEY-----"
     help:
-      en_US: "Private key in PEM format. For OpenSSH keys, convert with: ssh-keygen -p -m PEM -f keyfile"
-      ru_RU: "Приватный ключ в PEM формате. Для OpenSSH ключей конвертируйте: ssh-keygen -p -m PEM -f keyfile"
-
-  - name: subdir
-    type: text-input
-    required: false
-    label:
-      en_US: Subdirectory
-      ru_RU: Поддиректория
-      zh_Hans: 子目录
-    placeholder:
-      en_US: docs/
-    help:
-      en_US: Only import files from this subdirectory
-      ru_RU: Импортировать файлы только из этой поддиректории
-
-  - name: extensions
-    type: text-input
-    required: false
-    label:
-      en_US: File Extensions
-      ru_RU: Расширения файлов
-      zh_Hans: 文件扩展名
-    placeholder:
-      en_US: .md,.txt,.rst
-    help:
-      en_US: Comma-separated list of extensions to include (empty = all text files)
-      ru_RU: Список расширений через запятую (пусто = все текстовые файлы)
+      en_US: "Private key in PEM format for SSH repositories. For OpenSSH keys, convert with: ssh-keygen -p -m PEM -f keyfile"
+      ru_RU: "Приватный ключ в PEM формате для SSH репозиториев. Для OpenSSH ключей конвертируйте: ssh-keygen -p -m PEM -f keyfile"
 
 datasources:
   - datasources/git_datasource.yaml

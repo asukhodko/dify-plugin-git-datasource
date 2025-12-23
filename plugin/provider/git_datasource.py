@@ -2,11 +2,14 @@
 Git Datasource Provider - credential validation.
 """
 
+import logging
 from collections.abc import Mapping
 from typing import Any
 
 from dify_plugin.errors.tool import ToolProviderCredentialValidationError
 from dify_plugin.interfaces.datasource import DatasourceProvider
+
+logger = logging.getLogger(__name__)
 
 
 class GitDatasourceProvider(DatasourceProvider):
@@ -14,69 +17,88 @@ class GitDatasourceProvider(DatasourceProvider):
     Git Repository Data Source Provider.
 
     Validates credentials when configuring the data source.
+    
+    In website_crawl mode:
+    - Credentials (access_token, ssh_private_key) are configured at plugin level
+    - Parameters (repo_url, branch, etc.) are specified when creating Knowledge Base
     """
 
     def _validate_credentials(self, credentials: Mapping[str, Any]) -> None:
         """
-        Validate credentials.
+        Validate credentials format.
 
-        Called by Dify when configuring the data source.
+        Called by Dify when configuring the plugin authorization.
+        At this stage we only have credentials (access_token, ssh_private_key),
+        NOT the repository URL - that comes later when creating Knowledge Base.
+        
         Raises ToolProviderCredentialValidationError if credentials are invalid.
         """
-        from utils.url_utils import validate_repo_url, get_url_type
-        from utils.masking import mask_credentials
-
-        repo_url = credentials.get("repo_url")
-        if not repo_url:
-            raise ToolProviderCredentialValidationError("Repository URL is required")
-
-        # Validate URL format
-        is_valid, error_msg = validate_repo_url(repo_url)
-        if not is_valid:
-            raise ToolProviderCredentialValidationError(error_msg)
-
-        # Check auth type matches URL type
-        url_type = get_url_type(repo_url)
-        ssh_private_key = credentials.get("ssh_private_key")
-
-        if url_type == "ssh" and not ssh_private_key:
-            raise ToolProviderCredentialValidationError(
-                "SSH URL requires SSH private key"
-            )
-
-        if ssh_private_key and url_type != "ssh":
-            raise ToolProviderCredentialValidationError(
-                "SSH private key provided but URL is not SSH format. "
-                "Use git@host:user/repo.git or ssh://host/user/repo.git"
-            )
-
-        # Test connection
-        try:
-            self._test_connection(credentials)
-        except Exception as e:
-            # Mask credentials in error message
-            error_str = mask_credentials(str(e), dict(credentials))
-            raise ToolProviderCredentialValidationError(
-                f"Cannot connect to repository: {error_str}"
-            ) from e
-
-    def _test_connection(self, credentials: Mapping[str, Any]) -> None:
+        access_token = credentials.get("access_token", "")
+        ssh_private_key = credentials.get("ssh_private_key", "")
+        
+        # At least one credential should be provided (or both empty for public repos)
+        # We can't validate against a repo URL here because it's not available yet
+        
+        # Validate SSH key format if provided
+        if ssh_private_key:
+            self._validate_ssh_key_format(ssh_private_key)
+        
+        # Validate access token format if provided
+        if access_token:
+            self._validate_access_token_format(access_token)
+        
+        # If both are empty, that's OK - user might use public repos
+        # The actual connection test will happen when creating Knowledge Base
+        
+        logger.info("Credentials validated successfully")
+    
+    def _validate_ssh_key_format(self, ssh_key: str) -> None:
         """
-        Test connection to repository.
-
-        Uses git ls-remote to verify access.
+        Validate SSH private key format.
+        
+        Checks that the key looks like a valid PEM-formatted private key.
         """
-        from git_client import GitClient
-
-        repo_url = credentials.get("repo_url", "")
-        branch = credentials.get("branch", "main")
-
-        client = GitClient(
-            repo_url=repo_url,
-            branch=branch,
-            credentials=dict(credentials),
-            cache_dir="/tmp/git_datasource_cache",
-        )
-
-        # This will raise an exception if connection fails
-        client.test_connection()
+        # Normalize key - handle various formats
+        normalized = ssh_key.replace("\\n", "\n").strip()
+        
+        # Check for PEM format markers
+        valid_headers = [
+            "-----BEGIN RSA PRIVATE KEY-----",
+            "-----BEGIN OPENSSH PRIVATE KEY-----",
+            "-----BEGIN PRIVATE KEY-----",
+            "-----BEGIN EC PRIVATE KEY-----",
+            "-----BEGIN DSA PRIVATE KEY-----",
+        ]
+        
+        has_valid_header = any(header in normalized for header in valid_headers)
+        has_end_marker = "-----END" in normalized and "PRIVATE KEY-----" in normalized
+        
+        if not has_valid_header:
+            raise ToolProviderCredentialValidationError(
+                "Invalid SSH key format. Key must be in PEM format "
+                "(starting with -----BEGIN ... PRIVATE KEY-----). "
+                "For OpenSSH keys, convert with: ssh-keygen -p -m PEM -f keyfile"
+            )
+        
+        if not has_end_marker:
+            raise ToolProviderCredentialValidationError(
+                "Invalid SSH key format. Key appears to be truncated "
+                "(missing -----END ... PRIVATE KEY----- marker)"
+            )
+    
+    def _validate_access_token_format(self, token: str) -> None:
+        """
+        Validate access token format.
+        
+        Basic validation - token should not be empty or contain only whitespace.
+        """
+        if not token.strip():
+            raise ToolProviderCredentialValidationError(
+                "Access token cannot be empty or whitespace only"
+            )
+        
+        # Token should not contain newlines or other control characters
+        if "\n" in token or "\r" in token:
+            raise ToolProviderCredentialValidationError(
+                "Access token should not contain newlines"
+            )
